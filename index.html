@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Radio Gravity | Tu Estación Favorita • Transmisión Oficial</title>
+  <meta name="description" content="Radio Gravity — Transmisión oficial en vivo las 24 horas. La mejor música y programación continua con la máxima calidad de sonido.">
+  <link rel="icon" href="logo.ico" type="image/x-icon">
+
+  <!-- Open Graph & Meta -->
+  <meta property="og:title" content="Radio Gravity | Tu Estación Favorita">
+  <meta property="og:description" content="Transmisión oficial en vivo las 24 horas. La mejor música sin interrupciones.">
+  <meta property="og:image" content="logo.png">
+  <meta name="theme-color" content="#020104">
+  <meta name="color-scheme" content="dark">
+
+  <!-- DNS Preconnect for High-Speed Fonts & Streaming CDN -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://cdn.onlyhitsradio.net">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Three.js via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+  <!-- Application Logic -->
+  <script src="script.js" defer></script>
+</head>
+<body>
+
+  <!-- Filmic Noise Texture Overlay -->
+  <div class="noise-overlay" aria-hidden="true"></div>
+
+  <!-- Cybernetic Grid Matrix Overlay -->
+  <div class="grid-matrix-overlay" aria-hidden="true"></div>
+
+  <!-- Multi-Chromatic Ambient Light Orbs -->
+  <div class="ambient-glow glow-ultramarine" aria-hidden="true"></div>
+  <div class="ambient-glow glow-magenta" aria-hidden="true"></div>
+  <div class="ambient-glow glow-orange" aria-hidden="true"></div>
+
+  <!-- Audio Streaming Engine Element (Original Stream Preserved) -->
+  <audio id="miRadio" src="https://cdn.onlyhitsradio.net/tophits"></audio>
+
+  <!-- =========================================================================
+       1. Navigation Bar (Floating Frosted Glass Pill)
+       ========================================================================= -->
+  <header class="header-nav">
+    <a href="#inicio" class="nav-brand" aria-label="Ir al inicio de Radio Gravity">
+      <picture>
+        <source srcset="logo.webp" type="image/webp">
+        <img src="logo.png" alt="Logo Radio Gravity" width="36" height="36" loading="eager" decoding="async" class="nav-logo-thumb">
+      </picture>
+      <div class="nav-brand-title">
+        Radio<span>Gravity</span>
+      </div>
+    </a>
+
+    <nav aria-label="Navegación principal">
+      <ul class="nav-links">
+        <li><a href="#inicio" class="nav-link">Inicio</a></li>
+        <li><a href="#identidad" class="nav-link">Identidad</a></li>
+        <li><a href="#en-vivo" class="nav-link">En Vivo</a></li>
+        <li><a href="#programacion" class="nav-link">Programación</a></li>
+        <li><a href="#equipo" class="nav-link">Equipo</a></li>
+        <li><a href="#novedades" class="nav-link">Novedades</a></li>
+        <li><a href="#contacto" class="nav-link">Contacto</a></li>
+      </ul>
+    </nav>
+
+    <div class="nav-actions">
+      <button id="btnNavListen" class="btn-nav-listen" aria-label="Escuchar señal en vivo">
+        <span class="live-beacon"></span> En Vivo
+      </button>
+      <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Abrir menú de navegación" aria-expanded="false">
+        ☰
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Fullscreen Navigation Drawer -->
+  <div id="mobileDrawer" class="mobile-drawer" aria-hidden="true">
+    <button id="mobileDrawerClose" class="mobile-drawer-close" aria-label="Cerrar menú">✕</button>
+    <a href="#inicio" class="mobile-nav-link">Inicio</a>
+    <a href="#identidad" class="mobile-nav-link">Identidad</a>
+    <a href="#en-vivo" class="mobile-nav-link">En Vivo</a>
+    <a href="#programacion" class="mobile-nav-link">Programación</a>
+    <a href="#equipo" class="mobile-nav-link">Equipo</a>
+    <a href="#novedades" class="mobile-nav-link">Novedades</a>
+    <a href="#contacto" class="mobile-nav-link">Contacto</a>
+  </div>
+
+  <main>
+    <!-- =========================================================================
+         2. Hero Section — Experimental Audiovisual Stage
+         ========================================================================= -->
+    <section id="inicio" class="hero-section">
+      <div class="hero-container">
+
+        <!-- Top Metadata Tags -->
+        <div class="hero-top-meta">
+          <div class="badge-tag badge-live">
+            <span class="live-beacon live-beacon-green"></span>
+            <span>Transmisión en Vivo</span>
+          </div>
+          <div class="badge-tag badge-ultramarine">
+            <span>Tu Estación Favorita</span>
+          </div>
+        </div>
+
+        <!-- Monumental Editorial Typography -->
+        <h1 class="hero-main-title">
+          <span class="text-chrome">RADIO</span> <span class="text-hologram">GRAVITY</span>
+        </h1>
+
+        <div class="hero-subtitle">
+          <span>Tu música favorita las 24 horas</span>
+        </div>
+
+        <p class="hero-desc">
+          Escuchá en directo los mayores éxitos internacionales y una cuidada selección musical pensada para acompañarte en todo momento.
+        </p>
+
+        <!-- Central Interactive 3D WebGL Audiovisual Core -->
+        <div id="canvas3dContainer" class="webgl-3d-stage">
+          <div class="stage-ambient-circle" aria-hidden="true"></div>
+          <canvas id="canvas3d" aria-label="Escultura 3D interactiva de Radio Gravity"></canvas>
+        </div>
+
+        <!-- Hero Action Deck & Live Oscilloscope HUD -->
+        <div class="hero-action-deck">
+          <div class="hero-btn-group">
+            <button id="btnHeroPlay" class="btn-hero-primary" aria-label="Reproducir o pausar transmisión">
+              <svg class="play-icon-shape" viewBox="0 0 24 24" aria-hidden="true">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span id="heroPlayText">Escuchar en Vivo</span>
+            </button>
+            <a href="#programacion" class="btn-hero-secondary">
+              Ver Programación
+            </a>
+          </div>
+
+          <!-- Hero Mini Oscilloscope HUD -->
+          <div class="hero-mini-wave-box">
+            <canvas id="heroMiniWaveCanvas" aria-label="Onda sonora en vivo"></canvas>
+            <div class="hero-mini-tag">Señal en vivo</div>
+          </div>
+
+          <!-- Live Status Pill -->
+          <div class="hero-telemetry">
+            <div class="telemetry-item">
+              <span class="telemetry-label">Señal:</span>
+              <span class="telemetry-value"><span class="live-beacon live-beacon-green"></span> Al aire</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="telemetry-label">Emisión:</span>
+              <span class="telemetry-value">Online 24/7</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         Continuous Kinetic Marquee Tape
+         ========================================================================= -->
+    <div class="kinetic-marquee-tape" aria-hidden="true">
+      <div class="marquee-content">
+        <div class="marquee-item"><span class="accent">● RADIO GRAVITY</span> <span class="dot">•</span> TU ESTACIÓN FAVORITA <span class="dot">•</span> TRANSMISIÓN EN DIRECTO <span class="dot">•</span> LOS MEJORES ÉXITOS <span class="dot">•</span> MÚSICA LAS 24 HORAS <span class="dot">•</span> EL MEJOR SONIDO ONLINE</div>
+        <div class="marquee-item"><span class="accent">● RADIO GRAVITY</span> <span class="dot">•</span> TU ESTACIÓN FAVORITA <span class="dot">•</span> TRANSMISIÓN EN DIRECTO <span class="dot">•</span> LOS MEJORES ÉXITOS <span class="dot">•</span> MÚSICA LAS 24 HORAS <span class="dot">•</span> EL MEJOR SONIDO ONLINE</div>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         3. Section: Identidad
+         ========================================================================= -->
+    <section id="identidad" class="identidad-section">
+      <div class="section-header">
+        <span class="section-kicker">Identidad</span>
+        <h2 class="section-title">El Sonido de Radio Gravity</h2>
+        <p class="section-desc">
+          Una propuesta radial pensada para acompañarte todos los días con la mejor música.
+        </p>
+      </div>
+
+      <div class="editorial-grid">
+        <div class="manifesto-card">
+          <div class="manifesto-quote">
+            "Creemos en una radio cercana, dinámica y con personalidad. Radio Gravity nace para compartir la música que nos mueve, con transmisiones en directo y una selección pensada para vos."
+          </div>
+          <div class="manifesto-body">
+            Transmitimos de forma continua las 24 horas, con una programación variada que abarca desde los éxitos del momento hasta los grandes clásicos, sin pausas innecesarias y con excelente calidad de audio.
+          </div>
+        </div>
+
+        <div class="spec-column">
+          <div class="spec-card">
+            <h3 class="spec-title">Transmisión 24 Horas</h3>
+            <p class="spec-desc">Música continua y sin interrupciones disponible en todo momento y desde cualquier dispositivo.</p>
+          </div>
+
+          <div class="spec-card">
+            <h3 class="spec-title">Sonido en Alta Calidad</h3>
+            <p class="spec-desc">Emisión digital nítida para que disfrutes de cada tema con la mejor fidelidad en tus auriculares o parlantes.</p>
+          </div>
+
+          <div class="spec-card">
+            <h3 class="spec-title">Selección Cuidada</h3>
+            <p class="spec-desc">Programación estructurada para acompañar el ritmo de cada momento del día.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         4. Section: Reproductor Master
+         ========================================================================= -->
+    <section id="en-vivo" class="master-player-section">
+      <div class="section-header">
+        <span class="section-kicker">En Vivo</span>
+        <h2 class="section-title">Consola de Transmisión</h2>
+        <p class="section-desc">
+          Escuchá la radio en directo con control de volumen y visualizador de audio en tiempo real.
+        </p>
+      </div>
+
+      <div class="player-deck-frame">
+        <!-- Turntable Vinyl Assembly -->
+        <div class="vinyl-deck-container">
+          <div class="vinyl-turntable">
+            <div class="vinyl-grooves" aria-hidden="true"></div>
+            <div class="vinyl-sheen" aria-hidden="true"></div>
+            <div id="vinylCenterDisc" class="vinyl-center-disc">
+              <picture>
+                <source srcset="logo.webp" type="image/webp">
+                <img id="logo-radio" src="logo.png" alt="Logo de Radio Gravity" width="135" height="135" loading="lazy" decoding="async" class="vinyl-center-img">
+              </picture>
+            </div>
+            <div class="vinyl-center-spindle" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <!-- Master Controls Column -->
+        <div class="player-controls-column">
+          <div class="player-status-row">
+            <div class="badge-tag badge-live">
+              <span class="live-beacon live-beacon-green"></span>
+              <span>En Directo</span>
+            </div>
+            <div class="badge-tag badge-ultramarine">
+              <span>Alta Definición</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Show Track Info -->
+          <div class="player-track-info">
+            <h3 id="currentShowTitle" class="player-current-show">Radio Gravity</h3>
+            <div id="currentShowDesc" class="player-station-tagline">Transmisión Oficial • Tu Estación Favorita</div>
+          </div>
+
+          <!-- Real-Time Spectrum Equalizer & Oscilloscope Visualizer Canvas -->
+          <div class="visualizer-wrapper">
+            <canvas id="visualizerCanvas" aria-label="Visualizador de espectro sonoro y osciloscopio"></canvas>
+          </div>
+
+          <!-- Main Control Buttons -->
+          <div class="player-buttons-deck">
+            <button id="btnMasterPlay" class="btn-master-play" aria-label="Reproducir o Pausar Transmisión">
+              <svg id="masterPlayIcon" viewBox="0 0 24 24" aria-hidden="true">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            </button>
+
+            <!-- Interactive Volume Slider -->
+            <div class="volume-control-block">
+              <button id="btnMute" class="btn-mute-toggle" aria-label="Silenciar o reactivar sonido">
+                <svg id="muteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+              </button>
+              <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="85" aria-label="Ajustar volumen">
+              <span id="volumePercent" class="volume-percent">85%</span>
+            </div>
+          </div>
+
+          <!-- Footer Status of Player -->
+          <div class="player-meta-footer">
+            <div id="playerConnectionStatus" class="player-status-indicator">
+              <span class="live-beacon live-beacon-green"></span> Transmitiendo en directo
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         5. Section: Programación
+         ========================================================================= -->
+    <section id="programacion" class="programacion-section">
+      <div class="section-header">
+        <span class="section-kicker">Programación</span>
+        <h2 class="section-title">Programación Habitual</h2>
+        <p class="section-desc">
+          Nuestra grilla diaria para acompañarte con la mejor selección musical en cada momento.
+        </p>
+      </div>
+
+      <div class="schedule-container">
+        <!-- El Despertador -->
+        <div class="schedule-row" data-program-id="despertador">
+          <div class="schedule-time-block">
+            <div class="schedule-hours">08:00 — 12:00</div>
+            <div class="schedule-badge-status">DE LUNES A VIERNES</div>
+          </div>
+          <div class="schedule-info-block">
+            <h3 class="schedule-title">El Despertador</h3>
+            <p class="schedule-desc">El impulso sonoro para comenzar la mañana con energía, novedades y la mejor compañía musical.</p>
+          </div>
+          <div class="schedule-meta-block">
+            <span class="schedule-genre-tag">Música y actualidad</span>
+            <span class="badge-tag">LUN A VIE</span>
+          </div>
+        </div>
+
+        <!-- Tardes de Éxitos -->
+        <div class="schedule-row" data-program-id="tardes">
+          <div class="schedule-time-block">
+            <div class="schedule-hours">14:00 — 18:00</div>
+            <div class="schedule-badge-status">DE LUNES A VIERNES</div>
+          </div>
+          <div class="schedule-info-block">
+            <h3 class="schedule-title">Tardes de Éxitos</h3>
+            <p class="schedule-desc">Los temas más escuchados, estrenos y los éxitos que marcan el ritmo de tu tarde.</p>
+          </div>
+          <div class="schedule-meta-block">
+            <span class="schedule-genre-tag">Éxitos del momento</span>
+            <span class="badge-tag">LUN A VIE</span>
+          </div>
+        </div>
+
+        <!-- Ruta Nocturna -->
+        <div class="schedule-row" data-program-id="nocturna">
+          <div class="schedule-time-block">
+            <div class="schedule-hours">20:00 — 00:00</div>
+            <div class="schedule-badge-status">LUNES A DOMINGO</div>
+          </div>
+          <div class="schedule-info-block">
+            <h3 class="schedule-title">Ruta Nocturna</h3>
+            <p class="schedule-desc">Sesiones suaves, música electrónica y un clima relajado para cerrar el día.</p>
+          </div>
+          <div class="schedule-meta-block">
+            <span class="schedule-genre-tag">Música electrónica</span>
+            <span class="badge-tag">LUN A DOM</span>
+          </div>
+        </div>
+
+        <!-- Gravity Non-Stop (Fill hours) -->
+        <div class="schedule-row" data-program-id="nonstop">
+          <div class="schedule-time-block">
+            <div class="schedule-hours">24 HORAS</div>
+            <div class="schedule-badge-status">HORARIO CONTINUO</div>
+          </div>
+          <div class="schedule-info-block">
+            <h3 class="schedule-title">Gravity Non-Stop</h3>
+            <p class="schedule-desc">Música continua las 24 horas del día sin interrupciones entre programas.</p>
+          </div>
+          <div class="schedule-meta-block">
+            <span class="schedule-genre-tag">Música continua</span>
+            <span class="badge-tag">24 / 7</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         6. Section: Equipo
+         ========================================================================= -->
+    <section id="equipo" class="equipo-section">
+      <div class="section-header">
+        <span class="section-kicker">Equipo</span>
+        <h2 class="section-title">Quiénes Hacen Radio Gravity</h2>
+        <p class="section-desc">
+          El equipo detrás de la música y la transmisión diaria de la estación.
+        </p>
+      </div>
+
+      <div class="team-editorial-layout">
+        <!-- Lead Feature: Gianni Ferrari -->
+        <div class="team-feature-card">
+          <div>
+            <div class="team-role-tag">Dirección General</div>
+            <h3 class="team-member-name">Gianni Ferrari & Nicolas Techeira</h3>
+            <p class="team-member-bio">
+              A cargo de la dirección general y la propuesta musical de Radio Gravity. Con la vocación de compartir la mejor música con una transmisión cuidada y cercana para todos los oyentes.
+            </p>
+          </div>
+          <div class="team-meta-specs">
+            <span class="badge-tag badge-live">Dirección</span>
+            <span class="badge-tag badge-ultramarine">Programación</span>
+            <span class="badge-tag badge-neon-violet">Buenos Aires</span>
+          </div>
+        </div>
+
+        <!-- Programming Staff Card -->
+        <div class="team-feature-card">
+          <div>
+            <div class="team-role-tag">Producción & Sonido</div>
+            <h3 class="team-member-name">Equipo de Producción</h3>
+            <p class="team-member-bio">
+              Operadores, musicalizadores y colaboradores que cuidan cada detalle para que la transmisión se escuche de forma impecable las 24 horas del día.
+            </p>
+          </div>
+          <div class="team-meta-specs">
+            <span class="badge-tag badge-ultramarine">Producción</span>
+            <span class="badge-tag badge-neon-violet">Sonido</span>
+            <span class="badge-tag badge-live">24/7 en vivo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         7. Section: Novedades
+         ========================================================================= -->
+    <section id="novedades" class="novedades-section">
+      <div class="section-header">
+        <span class="section-kicker">Novedades</span>
+        <h2 class="section-title">Novedades de la Estación</h2>
+        <p class="section-desc">
+          Enterate de las últimas noticias y actualizaciones de la radio.
+        </p>
+      </div>
+
+      <div class="news-asymmetric-grid">
+        <article class="news-card news-card-featured">
+          <div class="news-date">Transmisión online</div>
+          <h3 class="news-heading">Nueva señal de streaming con mayor estabilidad y fidelidad</h3>
+          <p class="news-body">
+            Actualizamos nuestros servidores para que puedas escuchar la radio sin cortes ni interrupciones, tanto desde tu computadora como desde tu teléfono celular.
+          </p>
+          <a href="#en-vivo" class="news-read-more">
+            <span>Escuchar en vivo</span>
+            <span>→</span>
+          </a>
+        </article>
+
+        <article class="news-card">
+          <div class="news-date">Comunidad</div>
+          <h3 class="news-heading">Seguinos en nuestras redes oficiales</h3>
+          <p class="news-body">
+            Sumate a nuestra cuenta oficial de Instagram para conocer la música que suena, interactuar con el equipo y enterarte de las novedades.
+          </p>
+          <a href="https://www.instagram.com/radiogravity.fm/" target="_blank" rel="noopener noreferrer" class="news-read-more">
+            <span>Ir a @radiogravity.fm</span>
+            <span>→</span>
+          </a>
+        </article>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         8. Section: Contacto
+         ========================================================================= -->
+    <section id="contacto" class="contacto-section">
+      <div class="section-header">
+        <span class="section-kicker">Contacto</span>
+        <h2 class="section-title">Comunicate con Nosotros</h2>
+        <p class="section-desc">
+          Escribinos para pedir un tema, mandar un saludo o comunicarte con la producción.
+        </p>
+      </div>
+
+      <div class="contact-grid">
+        <!-- Social & Direct Links -->
+        <div class="contact-channels-card">
+          <div>
+            <h3 style="font-size: 22px; margin-bottom: 8px;">Canales Oficiales</h3>
+            <p style="font-size: 14px; color: var(--text-secondary);">
+              Escribinos directamente para pedidos de temas, saludos y propuestas.
+            </p>
+
+            <div class="channel-list">
+              <!-- Instagram -->
+              <a href="https://www.instagram.com/radiogravity.fm/" target="_blank" rel="noopener noreferrer" class="channel-link-item">
+                <div class="channel-name">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                  </svg>
+                  <span>Instagram Oficial (@radiogravity.fm)</span>
+                </div>
+                <span class="channel-action-arrow">↗</span>
+              </a>
+
+              <!-- WhatsApp -->
+              <a href="https://wa.me/?text=Hola%20Radio%20Gravity,%20estoy%20escuchando%20la%20radio!" target="_blank" rel="noopener noreferrer" class="channel-link-item">
+                <div class="channel-name">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                  </svg>
+                  <span>WhatsApp de la Radio</span>
+                </div>
+                <span class="channel-action-arrow">↗</span>
+              </a>
+
+              <!-- Facebook -->
+              <a href="#" class="channel-link-item">
+                <div class="channel-name">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                  </svg>
+                  <span>Facebook</span>
+                </div>
+                <span class="channel-action-arrow">↗</span>
+              </a>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px; font-size: 13px; color: var(--text-secondary);">
+            Buenos Aires, Argentina • Transmisión online 24 hs
+          </div>
+        </div>
+
+        <!-- Interactive Message Form -->
+        <div class="contact-form-card">
+          <h3 style="font-size: 22px; margin-bottom: 8px;">Mensaje al Estudio</h3>
+          <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 24px;">
+            Dejanos tu saludo o sugerencia musical:
+          </p>
+
+          <form id="contactForm">
+            <div class="form-group">
+              <label for="inputName" class="form-label">Tu Nombre</label>
+              <input type="text" id="inputName" class="form-input" placeholder="Ej: Santiago" required>
+            </div>
+
+            <div class="form-group">
+              <label for="inputMessage" class="form-label">Tu Mensaje o Pedido Musical</label>
+              <textarea id="inputMessage" class="form-textarea" placeholder="¿Qué tema te gustaría escuchar o qué mensaje querés dejar?" required></textarea>
+            </div>
+
+            <button type="submit" class="btn-form-submit">Enviar Mensaje</button>
+            <div id="formFeedback" class="form-feedback-message"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =========================================================================
+       9. Footer (With Safe Bottom Clearance for Floating Dock)
+       ========================================================================= -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top-row">
+        <div class="footer-brand">
+          <span class="text-chrome">RADIO</span> <span class="text-hologram">GRAVITY</span>
+        </div>
+        <div id="liveTimecode" class="footer-timecode">
+          Buenos Aires --:--
+        </div>
+      </div>
+
+      <div class="footer-bottom-row">
+        <div class="footer-copy">
+          &copy; 2026 Radio Gravity & Gianni Ferrari. Todos los derechos reservados.
+        </div>
+        <div class="footer-social-links">
+          <a href="https://www.instagram.com/radiogravity.fm/" target="_blank" rel="noopener noreferrer" class="footer-social-link">Instagram</a>
+          <a href="#" class="footer-social-link">Facebook</a>
+          <a href="https://wa.me/?text=Hola%20Radio%20Gravity!" target="_blank" rel="noopener noreferrer" class="footer-social-link">WhatsApp</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =========================================================================
+       10. Floating Glass Audio Dock (Sticky Persistent Controller)
+       ========================================================================= -->
+  <aside id="floatingDock" class="floating-audio-dock" aria-label="Mini reproductor flotante">
+    <div class="dock-left-block">
+      <picture>
+        <source srcset="logo.webp" type="image/webp">
+        <img src="logo.png" alt="Radio Gravity" width="42" height="42" loading="lazy" decoding="async" class="dock-disc-thumb">
+      </picture>
+      <div class="dock-meta-info">
+        <span id="dockTrackTitle" class="dock-track-title">Radio Gravity</span>
+        <span id="dockLiveStatus" class="dock-live-status">
+          <span class="live-beacon"></span> PAUSADO
+        </span>
+      </div>
+    </div>
+
+    <div class="dock-actions-block">
+      <button id="btnDockPlay" class="btn-dock-play" aria-label="Reproducir o pausar en barra flotante">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+      </button>
+      <button id="btnDockExpand" class="btn-dock-expand" title="Ver consola principal" aria-label="Ir al reproductor principal">
+        ↑
+      </button>
+    </div>
+  </aside>
+
+</body>
+</html>
