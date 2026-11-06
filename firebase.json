@@ -1,0 +1,14 @@
+{
+  "hosting": {
+    "site": "radiogravity",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "backup_original/**",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
+
