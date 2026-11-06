@@ -1737,6 +1737,18 @@ footer {
   color: var(--text-muted);
 }
 
+.footer-author-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color var(--transition-fast);
+}
+
+.footer-author-link:hover {
+  color: var(--orange-neon);
+  text-decoration: underline;
+}
+
 .footer-social-links {
   display: flex;
   align-items: center;
