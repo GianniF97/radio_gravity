@@ -13,9 +13,38 @@
 
   // =========================================================================
   // =========================================================================
-  // 1. Audio Streaming Core & Robust Live Stream Engine
+  // 1. Audio Streaming Core & Robust Live Stream Engine (Dual Quality: MP3 & AAC)
   // =========================================================================
-  const STREAM_URL = 'https://cdn.onlyhitsradio.net/tophits';
+  const STREAM_FORMATS = {
+    mp3: {
+      id: 'mp3',
+      name: 'MP3',
+      tag: 'Compatible',
+      url: 'https://cdn.onlyhitsradio.net/tophits',
+      badgeText: 'MP3 • Compatible'
+    },
+    aac: {
+      id: 'aac',
+      name: 'AAC',
+      tag: 'Eficiente',
+      url: 'https://cdn.onlyhitsradio.net/tophits_64',
+      badgeText: 'AAC • Eficiente'
+    }
+  };
+
+  // Preference persistence (localStorage, fallback to mp3)
+  let currentFormatKey = 'mp3';
+  try {
+    const saved = localStorage.getItem('radiogravity_format');
+    if (saved && STREAM_FORMATS[saved]) {
+      currentFormatKey = saved;
+    }
+  } catch (e) {}
+
+  function getCurrentStreamUrl() {
+    return STREAM_FORMATS[currentFormatKey].url;
+  }
+
   const audio = document.getElementById('miRadio');
   const btnHeroPlay = document.getElementById('btnHeroPlay');
   const btnMasterPlay = document.getElementById('btnMasterPlay');
@@ -32,6 +61,15 @@
   const muteIcon = document.getElementById('muteIcon');
   const floatingDock = document.getElementById('floatingDock');
 
+  // Quality selector DOM elements
+  const qualitySelectorWrap = document.getElementById('qualitySelectorWrap');
+  const btnQualityDropdown = document.getElementById('btnQualityDropdown');
+  const qualityDropdownMenu = document.getElementById('qualityDropdownMenu');
+  const qualityActiveFormat = document.getElementById('qualityActiveFormat');
+  const qualityBadgeLabel = document.getElementById('qualityBadgeLabel');
+  const dockFormatTag = document.getElementById('dockFormatTag');
+  const qualityOptions = document.querySelectorAll('.quality-option');
+
   let isPlaying = false;
   let isToggling = false;
   let previousVolume = 0.85;
@@ -44,6 +82,7 @@
 
   if (audio) {
     audio.volume = 0.85;
+    audio.src = getCurrentStreamUrl();
   }
 
   // Play/Pause Icons SVG
@@ -145,14 +184,128 @@
     }
   }
 
+  // =========================================================================
+  // Stream Quality & Format Engine (MP3 & AAC Management)
+  // =========================================================================
+  function updateQualityUI(formatKey) {
+    const format = STREAM_FORMATS[formatKey] || STREAM_FORMATS.mp3;
+
+    if (qualityActiveFormat) {
+      qualityActiveFormat.textContent = format.name;
+    }
+
+    if (qualityBadgeLabel) {
+      qualityBadgeLabel.textContent = format.badgeText;
+    }
+
+    if (dockFormatTag) {
+      dockFormatTag.textContent = format.name;
+    }
+
+    qualityOptions.forEach((opt) => {
+      const isSelected = opt.dataset.format === formatKey;
+      opt.classList.toggle('active', isSelected);
+      opt.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+    });
+  }
+
+  function openQualityDropdown() {
+    if (!qualityDropdownMenu || !btnQualityDropdown) return;
+    qualityDropdownMenu.classList.add('active');
+    btnQualityDropdown.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeQualityDropdown() {
+    if (!qualityDropdownMenu || !btnQualityDropdown) return;
+    qualityDropdownMenu.classList.remove('active');
+    btnQualityDropdown.setAttribute('aria-expanded', 'false');
+  }
+
+  function toggleQualityDropdown(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (qualityDropdownMenu && qualityDropdownMenu.classList.contains('active')) {
+      closeQualityDropdown();
+    } else {
+      openQualityDropdown();
+    }
+  }
+
+  async function setStreamFormat(formatKey) {
+    if (!STREAM_FORMATS[formatKey]) return;
+    if (formatKey === currentFormatKey) {
+      closeQualityDropdown();
+      return;
+    }
+
+    const previousFormat = STREAM_FORMATS[currentFormatKey];
+    currentFormatKey = formatKey;
+    const newFormat = STREAM_FORMATS[currentFormatKey];
+
+    // Persist choice in localStorage
+    try {
+      localStorage.setItem('radiogravity_format', currentFormatKey);
+    } catch (e) {}
+
+    updateQualityUI(currentFormatKey);
+    closeQualityDropdown();
+
+    const wasPlaying = isPlaying;
+
+    if (wasPlaying) {
+      setLoadingState(`Cambiando a formato ${newFormat.name}...`);
+      try {
+        audio.pause();
+        audio.src = newFormat.url;
+        await audio.play();
+        updatePlayUI(true);
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+        console.warn(`Error al conectar con ${newFormat.name}:`, err);
+        setErrorState(`Error al conectar con ${newFormat.name}. Podés volver a ${previousFormat.name} o reintentar.`);
+        updatePlayUI(false);
+      }
+    } else {
+      // If paused, update source cleanly without auto-playing
+      audio.src = newFormat.url;
+      if (playerConnectionStatus) {
+        playerConnectionStatus.innerHTML = `<span class="live-beacon"></span> Formato ${newFormat.name} (${newFormat.tag}) seleccionado`;
+      }
+    }
+  }
+
+  if (btnQualityDropdown) {
+    btnQualityDropdown.addEventListener('click', toggleQualityDropdown);
+  }
+
+  qualityOptions.forEach((opt) => {
+    opt.addEventListener('click', (e) => {
+      e.preventDefault();
+      const format = opt.dataset.format;
+      if (format) setStreamFormat(format);
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (qualitySelectorWrap && !qualitySelectorWrap.contains(e.target)) {
+      closeQualityDropdown();
+    }
+  });
+
+  // Initial Quality UI update
+  updateQualityUI(currentFormatKey);
+
   async function playStream() {
     if (!audio) return;
     isPlaying = true;
-    setLoadingState('Conectando al streaming...');
+    const currentFormat = STREAM_FORMATS[currentFormatKey];
+    setLoadingState(`Conectando a ${currentFormat.name}...`);
     updatePlayUI(true);
 
-    // Reconnect cleanly to live streaming broadcast edge
-    audio.src = STREAM_URL;
+    const streamUrl = currentFormat.url;
+    audio.src = streamUrl;
 
     try {
       await audio.play();
@@ -164,13 +317,13 @@
       }
       console.warn('Playback error, retrying:', err);
       try {
-        audio.src = STREAM_URL;
+        audio.src = streamUrl;
         await audio.play();
         updatePlayUI(true);
       } catch (retryErr) {
         if (retryErr.name === 'AbortError') return;
         console.error('Audio streaming connection error:', retryErr);
-        setErrorState('Toca para iniciar reproducción');
+        setErrorState(`Error al conectar con ${currentFormat.name}. Toca para reintentar.`);
         updatePlayUI(false);
       }
     }
@@ -223,12 +376,13 @@
     });
     audio.addEventListener('error', () => {
       if (!isPlaying) return;
-      console.warn('Audio stream connection issue:', audio.error);
-      setErrorState('Reconectando señal en vivo...');
+      const currentFormat = STREAM_FORMATS[currentFormatKey];
+      console.warn(`Audio stream error on ${currentFormat.name}:`, audio.error);
+      setErrorState(`Error al conectar con ${currentFormat.name}. Reintentando...`);
       // Safe one-time recovery attempt
       setTimeout(() => {
         if (isPlaying) {
-          audio.src = STREAM_URL;
+          audio.src = currentFormat.url;
           audio.play().catch(() => {});
         }
       }, 2000);
@@ -895,32 +1049,176 @@
   updateTimecode();
 
   // =========================================================================
-  // 10. Contact Form Simulation & Feedback
+  // 11. Progressive Web App (PWA) Engine — Installability & iOS Integration
   // =========================================================================
-  const contactForm = document.getElementById('contactForm');
-  const formFeedback = document.getElementById('formFeedback');
+  const btnPwaInstall = document.getElementById('btnPwaInstall');
+  const btnMobilePwaInstall = document.getElementById('btnMobilePwaInstall');
+  const iosInstallModal = document.getElementById('iosInstallModal');
+  const iosModalClose = document.getElementById('iosModalClose');
+  const iosModalConfirm = document.getElementById('iosModalConfirm');
 
-  if (contactForm && formFeedback) {
-    contactForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const submitBtn = contactForm.querySelector('button[type="submit"]');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Enviando mensaje...';
-      }
+  let deferredInstallPrompt = null;
 
-      setTimeout(() => {
-        contactForm.reset();
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Enviar Mensaje';
+  function isRunningStandalone() {
+    return (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true ||
+      document.referrer.includes('android-app://')
+    );
+  }
+
+  function isIOS() {
+    const ua = window.navigator.userAgent.toLowerCase();
+    const isAppleDevice = /iphone|ipad|ipod/.test(ua);
+    const isIpadOS = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+    return isAppleDevice || isIpadOS;
+  }
+
+  function showInstallButtons() {
+    if (isRunningStandalone()) return;
+    if (btnPwaInstall) {
+      btnPwaInstall.style.display = 'inline-flex';
+    }
+    if (btnMobilePwaInstall) {
+      btnMobilePwaInstall.style.display = 'inline-flex';
+    }
+  }
+
+  function hideInstallButtons() {
+    if (btnPwaInstall) {
+      btnPwaInstall.style.display = 'none';
+    }
+    if (btnMobilePwaInstall) {
+      btnMobilePwaInstall.style.display = 'none';
+    }
+  }
+
+  function openIosModal() {
+    if (!iosInstallModal) return;
+
+    const titleEl = document.getElementById('iosModalTitle');
+    const badgeEl = iosInstallModal.querySelector('.badge-tag span:last-child');
+    const subtitleEl = iosInstallModal.querySelector('.pwa-modal-subtitle');
+    const step1El = document.getElementById('pwaStep1Text');
+    const step2El = document.getElementById('pwaStep2Text');
+    const step3El = document.getElementById('pwaStep3Text');
+
+    if (isIOS()) {
+      if (badgeEl) badgeEl.textContent = 'Instalación en iPhone / iPad';
+      if (titleEl) titleEl.innerHTML = 'Instalar <span class="text-chrome">Radio</span> <span class="text-hologram">Gravity</span>';
+      if (subtitleEl) subtitleEl.textContent = 'Instalá la app directamente desde Safari para escuchar el streaming oficial sin barras del navegador.';
+      if (step1El) step1El.innerHTML = 'En la barra inferior de Safari, tocá el botón <strong>Compartir</strong>.';
+      if (step2El) step2El.innerHTML = 'Deslizá hacia abajo y seleccioná <strong>"Agregar a pantalla de inicio"</strong>.';
+      if (step3El) step3El.innerHTML = 'Confirmá tocando <strong>"Agregar"</strong> en la esquina superior derecha.';
+    } else {
+      if (badgeEl) badgeEl.textContent = 'Instalar Aplicación';
+      if (titleEl) titleEl.innerHTML = 'Instalar <span class="text-chrome">Radio</span> <span class="text-hologram">Gravity</span>';
+      if (subtitleEl) subtitleEl.textContent = 'Para instalar Radio Gravity en tu dispositivo o navegador:';
+      if (step1El) step1El.innerHTML = 'Hacé clic en el ícono de instalación (<strong>⊕</strong> o <strong>⬇</strong>) en la barra de direcciones del navegador.';
+      if (step2El) step2El.innerHTML = 'O abrí el menú de opciones (<strong>⋮</strong>) y seleccioná <strong>"Instalar Radio Gravity"</strong>.';
+      if (step3El) step3El.innerHTML = 'Confirmá para acceder directamente desde tu escritorio o pantalla principal.';
+    }
+
+    iosInstallModal.classList.add('active');
+    iosInstallModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeIosModal() {
+    if (!iosInstallModal) return;
+    iosInstallModal.classList.remove('active');
+    iosInstallModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  async function handleInstallClick(e) {
+    if (e) e.preventDefault();
+
+    // 1. Android / Desktop Chrome / Edge with beforeinstallprompt
+    if (deferredInstallPrompt) {
+      try {
+        deferredInstallPrompt.prompt();
+        const choice = await deferredInstallPrompt.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          hideInstallButtons();
         }
-        formFeedback.style.display = 'block';
-        formFeedback.textContent = '✓ Mensaje enviado con éxito. ¡Gracias por comunicarte!';
-        setTimeout(() => {
-          formFeedback.style.display = 'none';
-        }, 6000);
-      }, 700);
+      } catch (err) {
+        console.warn('[PWA] Prompt error:', err);
+      }
+      deferredInstallPrompt = null;
+      return;
+    }
+
+    // 2. iOS or browser without deferred prompt
+    openIosModal();
+  }
+
+  if (btnPwaInstall) {
+    btnPwaInstall.addEventListener('click', handleInstallClick);
+  }
+
+  if (btnMobilePwaInstall) {
+    btnMobilePwaInstall.addEventListener('click', (e) => {
+      const mobileDrawer = document.getElementById('mobileDrawer');
+      if (mobileDrawer) {
+        mobileDrawer.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+      handleInstallClick(e);
+    });
+  }
+
+  if (iosModalClose) iosModalClose.addEventListener('click', closeIosModal);
+  if (iosModalConfirm) iosModalConfirm.addEventListener('click', closeIosModal);
+  if (iosInstallModal) {
+    iosInstallModal.addEventListener('click', (e) => {
+      if (e.target === iosInstallModal) closeIosModal();
+    });
+  }
+
+  // Native PWA Event: beforeinstallprompt
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    showInstallButtons();
+  });
+
+  // Native PWA Event: appinstalled
+  window.addEventListener('appinstalled', () => {
+    console.log('[PWA] Radio Gravity ha sido instalada con éxito.');
+    hideInstallButtons();
+    closeIosModal();
+    deferredInstallPrompt = null;
+  });
+
+  // Standalone mode change listener
+  try {
+    const standaloneMedia = window.matchMedia('(display-mode: standalone)');
+    standaloneMedia.addEventListener('change', (e) => {
+      if (e.matches) hideInstallButtons();
+    });
+  } catch (err) {}
+
+  // Check initial state
+  if (!isRunningStandalone()) {
+    if (isIOS()) {
+      showInstallButtons();
+    }
+  } else {
+    hideInstallButtons();
+  }
+
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('/sw.js', { scope: '/' })
+        .then((reg) => {
+          console.log('[PWA] Service Worker activo. Scope:', reg.scope);
+        })
+        .catch((err) => {
+          console.warn('[PWA] Fallo al registrar Service Worker:', err);
+        });
     });
   }
 

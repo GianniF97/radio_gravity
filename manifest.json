@@ -1,0 +1,41 @@
+{
+  "name": "Radio Gravity",
+  "short_name": "Gravity",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#020104",
+  "theme_color": "#020104",
+  "orientation": "portrait",
+  "lang": "es",
+  "description": "Radio Gravity — Transmisión oficial en vivo las 24 horas. La mejor música y programación continua con la máxima calidad de sonido.",
+  "categories": ["music", "entertainment"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
+

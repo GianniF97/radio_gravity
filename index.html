@@ -14,6 +14,15 @@
   <meta name="theme-color" content="#020104">
   <meta name="color-scheme" content="dark">
 
+  <!-- Progressive Web App (PWA) Manifest & Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Radio Gravity">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+
   <!-- DNS Preconnect for High-Speed Fonts & Streaming CDN -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,12 +31,12 @@
   <link rel="preconnect" href="https://cdn.onlyhitsradio.net">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=2.2">
+  <link rel="stylesheet" href="style.css?v=2.4">
 
   <!-- Three.js via CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
   <!-- Application Logic -->
-  <script src="script.js?v=2.2" defer></script>
+  <script src="script.js?v=2.4" defer></script>
 </head>
 <body>
 
@@ -72,6 +81,16 @@
     </nav>
 
     <div class="nav-actions">
+      <!-- PWA Install Button (Displays on eligible devices & iOS) -->
+      <button id="btnPwaInstall" class="btn-pwa-install" aria-label="Instalar aplicación de Radio Gravity" style="display: none;">
+        <svg class="pwa-install-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>Instalar App</span>
+      </button>
+
       <button id="btnNavListen" class="btn-nav-listen" aria-label="Escuchar señal en vivo">
         <span class="live-beacon"></span> En Vivo
       </button>
@@ -91,6 +110,16 @@
     <a href="#equipo" class="mobile-nav-link">Equipo</a>
     <a href="#novedades" class="mobile-nav-link">Novedades</a>
     <a href="#contacto" class="mobile-nav-link">Contacto</a>
+
+    <!-- Mobile Drawer PWA Install Button -->
+    <button id="btnMobilePwaInstall" class="btn-mobile-pwa-install" aria-label="Instalar Radio Gravity como aplicación" style="display: none;">
+      <svg class="pwa-install-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <span>Instalar App</span>
+    </button>
   </div>
 
   <main>
@@ -252,8 +281,8 @@
               <span class="live-beacon live-beacon-green"></span>
               <span>En Directo</span>
             </div>
-            <div class="badge-tag badge-ultramarine">
-              <span>Alta Definición</span>
+            <div id="qualityStatusBadge" class="badge-tag badge-ultramarine" title="Formato de audio activo">
+              <span id="qualityBadgeLabel">MP3 • Compatible</span>
             </div>
           </div>
 
@@ -286,6 +315,43 @@
               </button>
               <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="85" aria-label="Ajustar volumen">
               <span id="volumePercent" class="volume-percent">85%</span>
+            </div>
+
+            <!-- Custom Cybernetic Quality Dropdown Selector -->
+            <div class="quality-selector-wrap" id="qualitySelectorWrap">
+              <button id="btnQualityDropdown" class="btn-quality-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Seleccionar calidad y formato de audio">
+                <span class="quality-trigger-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                  </svg>
+                </span>
+                <span class="quality-trigger-label">
+                  <span class="quality-label-prefix">Calidad:</span>
+                  <strong id="qualityActiveFormat">MP3</strong>
+                </span>
+                <svg class="quality-trigger-arrow" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+
+              <div id="qualityDropdownMenu" class="quality-dropdown-menu" role="listbox" aria-label="Calidades de transmisión">
+                <button type="button" class="quality-option active" role="option" aria-selected="true" data-format="mp3">
+                  <div class="quality-option-header">
+                    <span class="quality-option-name">MP3</span>
+                    <span class="quality-option-badge">Compatible</span>
+                  </div>
+                  <span class="quality-option-desc">Máxima compatibilidad con todos los navegadores y dispositivos.</span>
+                </button>
+
+                <button type="button" class="quality-option" role="option" aria-selected="false" data-format="aac">
+                  <div class="quality-option-header">
+                    <span class="quality-option-name">AAC</span>
+                    <span class="quality-option-badge">Eficiente</span>
+                  </div>
+                  <span class="quality-option-desc">Compresión avanzada para un menor consumo de datos móviles.</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -592,9 +658,12 @@
       </picture>
       <div class="dock-meta-info">
         <span id="dockTrackTitle" class="dock-track-title">Radio Gravity</span>
-        <span id="dockLiveStatus" class="dock-live-status">
-          <span class="live-beacon"></span> PAUSADO
-        </span>
+        <div class="dock-sub-row">
+          <span id="dockLiveStatus" class="dock-live-status">
+            <span class="live-beacon"></span> PAUSADO
+          </span>
+          <span id="dockFormatTag" class="dock-format-tag">MP3</span>
+        </div>
       </div>
     </div>
 
@@ -609,6 +678,82 @@
       </button>
     </div>
   </aside>
+
+  <!-- =========================================================================
+       11. PWA Installation Instructions Modal (iOS Safari & Browser Guide)
+       ========================================================================= -->
+  <div id="iosInstallModal" class="pwa-modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="iosModalTitle">
+    <div class="pwa-modal-card">
+      <button id="iosModalClose" class="pwa-modal-close" aria-label="Cerrar instrucciones">✕</button>
+      
+      <div class="pwa-modal-header">
+        <div class="badge-tag badge-live">
+          <span class="live-beacon live-beacon-green"></span>
+          <span>Instalación en tu Dispositivo</span>
+        </div>
+        <h3 id="iosModalTitle" class="pwa-modal-title">
+          Instalar <span class="text-chrome">Radio</span> <span class="text-hologram">Gravity</span>
+        </h3>
+        <p class="pwa-modal-subtitle">
+          Instalá la app directamente desde Safari para escuchar el streaming oficial sin barras del navegador.
+        </p>
+      </div>
+
+      <div class="pwa-modal-steps">
+        <div class="pwa-step-item">
+          <div class="pwa-step-num">1</div>
+          <div class="pwa-step-content">
+            <div id="pwaStep1Text" class="pwa-step-text">
+              En la barra inferior de Safari, tocá el botón <strong>Compartir</strong>.
+            </div>
+            <div class="pwa-step-icon-wrap" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                <polyline points="16 6 12 2 8 6"></polyline>
+                <line x1="12" y1="2" x2="12" y2="15"></line>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="pwa-step-item">
+          <div class="pwa-step-num">2</div>
+          <div class="pwa-step-content">
+            <div id="pwaStep2Text" class="pwa-step-text">
+              Deslizá hacia abajo y seleccioná <strong>"Agregar a pantalla de inicio"</strong>.
+            </div>
+            <div class="pwa-step-icon-wrap" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="pwa-step-item">
+          <div class="pwa-step-num">3</div>
+          <div class="pwa-step-content">
+            <div id="pwaStep3Text" class="pwa-step-text">
+              Confirmá tocando <strong>"Agregar"</strong> en la esquina superior derecha.
+            </div>
+            <div class="pwa-step-icon-wrap" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pwa-modal-footer">
+        <button id="iosModalConfirm" class="btn-hero-primary pwa-modal-btn">
+          <span>¡Entendido!</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>
