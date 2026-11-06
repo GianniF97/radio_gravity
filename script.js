@@ -285,41 +285,49 @@
   }
 
   // =========================================================================
-  // 3. Hero Mini Wave Oscilloscope Canvas
+  // 3. Hero Mini Wave Oscilloscope Canvas (Intersection Observed)
   // =========================================================================
   const miniWaveCanvas = document.getElementById('heroMiniWaveCanvas');
   let miniCtx = null;
+  let isHeroWaveVisible = true;
 
   if (miniWaveCanvas) {
     miniCtx = miniWaveCanvas.getContext('2d');
     function resizeMiniCanvas() {
       const rect = miniWaveCanvas.parentElement.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
       miniWaveCanvas.width = (rect.width - 130) * dpr;
       miniWaveCanvas.height = rect.height * dpr;
       if (miniCtx) miniCtx.scale(dpr, dpr);
     }
     resizeMiniCanvas();
     window.addEventListener('resize', resizeMiniCanvas);
+
+    const miniObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        isHeroWaveVisible = entry.isIntersecting;
+      });
+    }, { threshold: 0.05 });
+    miniObserver.observe(miniWaveCanvas);
   }
 
   function renderHeroMiniWave() {
-    if (!miniCtx || !miniWaveCanvas) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    if (!miniCtx || !miniWaveCanvas || !isHeroWaveVisible || !isPageVisible) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
     const w = miniWaveCanvas.width / dpr;
     const h = miniWaveCanvas.height / dpr;
     const midY = h / 2;
 
     miniCtx.clearRect(0, 0, w, h);
 
-    const time = Date.now() * 0.006;
-    const points = isMobile ? 24 : 36;
+    const time = Date.now() * 0.005;
+    const points = isMobile ? 20 : 30;
 
     miniCtx.beginPath();
     miniCtx.lineWidth = 2;
     miniCtx.strokeStyle = isPlaying ? '#ff5500' : '#8b5cf6';
-    miniCtx.shadowColor = isPlaying ? 'rgba(255, 85, 0, 0.8)' : 'rgba(139, 92, 246, 0.5)';
-    miniCtx.shadowBlur = 6;
+    miniCtx.shadowColor = isPlaying ? 'rgba(255, 85, 0, 0.6)' : 'transparent';
+    miniCtx.shadowBlur = isPlaying ? 4 : 0;
 
     for (let i = 0; i < points; i++) {
       const x = (i / (points - 1)) * w;
@@ -333,22 +341,30 @@
   }
 
   // =========================================================================
-  // 4. Master Player Dual Visualizer (Oscilloscope + Spectrum Equalizer)
+  // 4. Master Player Dual Visualizer (Intersection Observed & Throttled)
   // =========================================================================
   const canvas = document.getElementById('visualizerCanvas');
   let ctx = null;
+  let isMasterVisualizerVisible = true;
 
   if (canvas) {
     ctx = canvas.getContext('2d');
     function resizeCanvas() {
       const rect = canvas.parentElement.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
       if (ctx) ctx.scale(dpr, dpr);
     }
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
+
+    const masterObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        isMasterVisualizerVisible = entry.isIntersecting;
+      });
+    }, { threshold: 0.05 });
+    masterObs.observe(canvas);
   }
 
   let isPageVisible = true;
@@ -356,31 +372,47 @@
     isPageVisible = !document.hidden;
   });
 
-  function renderMasterVisualizer() {
-    if (!isPageVisible) {
-      setTimeout(renderMasterVisualizer, 150);
+  let lastFrameTime = 0;
+
+  function renderVisualizers(now) {
+    requestAnimationFrame(renderVisualizers);
+
+    if (!isPageVisible) return;
+
+    // Throttle rendering when paused (30 FPS is plenty for idle wave)
+    const interval = isPlaying ? 0 : 33;
+    if (interval > 0 && now - lastFrameTime < interval) {
       return;
     }
+    lastFrameTime = now;
 
-    if (!ctx || !canvas) return;
+    // Update shared audio frequency data
+    const freqData = getAudioData();
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    // 1) Render Hero Mini Wave if in viewport
+    if (isHeroWaveVisible) {
+      renderHeroMiniWave();
+    }
+
+    // 2) Render Master Visualizer if in viewport
+    if (!isMasterVisualizerVisible || !ctx || !canvas) return;
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
     const width = canvas.width / dpr;
     const height = canvas.height / dpr;
 
     ctx.clearRect(0, 0, width, height);
 
-    const freqData = getAudioData();
     const barCount = FREQ_BINS;
     const barWidth = Math.max(2, (width / barCount) - 2.5);
 
-    // 1) Oscilloscope Vector Wave Line
+    // Oscilloscope Vector Wave Line
     const time = Date.now() * 0.005;
     ctx.beginPath();
     ctx.lineWidth = 1.8;
     ctx.strokeStyle = isPlaying ? 'rgba(56, 189, 248, 0.85)' : 'rgba(139, 92, 246, 0.4)';
-    ctx.shadowColor = 'rgba(56, 189, 248, 0.6)';
-    ctx.shadowBlur = 6;
+    ctx.shadowColor = isPlaying ? 'rgba(56, 189, 248, 0.5)' : 'transparent';
+    ctx.shadowBlur = isPlaying ? 4 : 0;
 
     for (let i = 0; i < barCount; i++) {
       const x = i * (barWidth + 2.5) + barWidth / 2;
@@ -392,7 +424,7 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // 2) Multi-band Equalizer Bars with Peak Hold
+    // Multi-band Equalizer Bars with Peak Hold
     for (let i = 0; i < barCount; i++) {
       const barHeight = Math.max(3, freqData[i] * (height * 0.85));
       const x = i * (barWidth + 2.5);
@@ -415,11 +447,9 @@
         ctx.fillRect(x, peakY - 2, barWidth, 2);
       }
     }
-
-    renderHeroMiniWave();
-    requestAnimationFrame(renderMasterVisualizer);
   }
-  renderMasterVisualizer();
+
+  requestAnimationFrame(renderVisualizers);
 
   // =========================================================================
   // 5. Dynamic Program Schedule & Live Broadcaster
@@ -552,62 +582,56 @@
       powerPreference: 'high-performance'
     });
     renderer.setSize(container.clientWidth, container.clientHeight);
-    // Cap pixel ratio to 1.5 on mobile to avoid 4x fragment shader load
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2));
+    // Capped pixel ratio to prevent multi-million fragment shader load on high-DPI screens
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.2));
 
     // Studio Multi-Chromatic Lighting Rig
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
     keyLight.position.set(5, 6, 5);
     scene.add(keyLight);
 
     // Rim 1: Ultramarine Blue
-    const blueRimLight = new THREE.PointLight(0x1d4ed8, 3.5, 25);
+    const blueRimLight = new THREE.PointLight(0x1d4ed8, 3.2, 22);
     blueRimLight.position.set(-6, -3, 3);
     scene.add(blueRimLight);
 
     // Rim 2: Cyber Magenta
-    const magentaRimLight = new THREE.PointLight(0xec4899, 3.0, 25);
+    const magentaRimLight = new THREE.PointLight(0xec4899, 2.8, 22);
     magentaRimLight.position.set(5, -4, -3);
     scene.add(magentaRimLight);
 
     // Core Accent: Intense Orange
-    const orangeAccentLight = new THREE.PointLight(0xff5500, 3.8, 20);
+    const orangeAccentLight = new THREE.PointLight(0xff5500, 3.5, 18);
     orangeAccentLight.position.set(0, 4, 3);
     scene.add(orangeAccentLight);
 
     // Fill: Electric Violet
-    const violetFillLight = new THREE.PointLight(0x8b5cf6, 2.5, 25);
+    const violetFillLight = new THREE.PointLight(0x8b5cf6, 2.2, 22);
     violetFillLight.position.set(-3, 5, -4);
     scene.add(violetFillLight);
 
     const mainGroup = new THREE.Group();
     scene.add(mainGroup);
 
-    // 1) Central Liquid Chrome & Glass Metamorphic Torus Knot (Adaptive Segments)
-    const tubularSegments = isMobile ? 70 : 140;
-    const radialSegments = isMobile ? 18 : 28;
+    // 1) Central Liquid Chrome Metamorphic Torus Knot (Optimized PBR Standard)
+    const tubularSegments = isMobile ? 48 : 80;
+    const radialSegments = isMobile ? 12 : 20;
     const knotGeometry = new THREE.TorusKnotGeometry(1.45, 0.38, tubularSegments, radialSegments, 2, 3);
-    const knotMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
-      metalness: 0.92,
-      roughness: 0.08,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.06,
-      reflectivity: 0.98,
-      transmission: 0.28,
-      opacity: 0.96,
-      transparent: true,
+    const knotMaterial = new THREE.MeshStandardMaterial({
+      color: 0xf5f5fa,
+      metalness: 0.94,
+      roughness: 0.12,
       wireframe: false
     });
     const knotMesh = new THREE.Mesh(knotGeometry, knotMaterial);
     mainGroup.add(knotMesh);
 
     // 2) Orbital Resonance Ring: Ultramarine Blue
-    const ringSegs = isMobile ? 64 : 120;
-    const ring1Geometry = new THREE.TorusGeometry(2.35, 0.024, 12, ringSegs);
+    const ringSegs = isMobile ? 36 : 64;
+    const ring1Geometry = new THREE.TorusGeometry(2.35, 0.024, 8, ringSegs);
     const ring1Material = new THREE.MeshStandardMaterial({
       color: 0x2563eb,
       metalness: 0.9,
@@ -621,7 +645,7 @@
     mainGroup.add(ring1Mesh);
 
     // 3) Orbital Resonance Ring: Cyber Magenta
-    const ring2Geometry = new THREE.TorusGeometry(2.55, 0.018, 12, ringSegs);
+    const ring2Geometry = new THREE.TorusGeometry(2.55, 0.018, 8, ringSegs);
     const ring2Material = new THREE.MeshStandardMaterial({
       color: 0xec4899,
       metalness: 0.85,
@@ -635,7 +659,7 @@
     mainGroup.add(ring2Mesh);
 
     // 4) Equator Fiery Orange Gyro Ring
-    const ring3Geometry = new THREE.TorusGeometry(2.72, 0.012, 12, ringSegs);
+    const ring3Geometry = new THREE.TorusGeometry(2.72, 0.012, 8, ringSegs);
     const ring3Material = new THREE.MeshStandardMaterial({
       color: 0xff5500,
       metalness: 0.95,
@@ -648,7 +672,7 @@
     mainGroup.add(ring3Mesh);
 
     // 5) Cosmic Audiovisual Particle Field (Adaptive count)
-    const particleCount = isMobile ? 60 : 180;
+    const particleCount = isMobile ? 25 : 60;
     const particleGeometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
     for (let i = 0; i < particleCount * 3; i += 3) {
