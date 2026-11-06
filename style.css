@@ -190,14 +190,17 @@ h1, h2, h3, h4 {
 }
 
 .text-chrome {
+  color: #ffffff;
   background: var(--chrome-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
+  transform: translateZ(0);
 }
 
 .text-hologram {
+  color: #d946ef;
   background: var(--hologram-gradient);
   -webkit-background-clip: text;
   background-clip: text;
@@ -205,6 +208,7 @@ h1, h2, h3, h4 {
   background-size: 250% auto;
   animation: shineHologram 7s linear infinite;
   display: inline-block;
+  transform: translateZ(0);
 }
 
 @keyframes shineHologram {
@@ -559,14 +563,17 @@ h1, h2, h3, h4 {
 }
 
 .hero-main-title {
+  position: relative;
+  z-index: 10;
+  isolation: isolate;
   font-size: clamp(42px, 8.5vw, 116px);
   font-weight: 800;
   letter-spacing: -0.04em;
-  line-height: 0.95;
+  line-height: 1.05;
   text-transform: uppercase;
   margin-bottom: 16px;
   max-width: 1150px;
-  text-shadow: 0 0 80px rgba(139, 92, 246, 0.35);
+  filter: drop-shadow(0 0 50px rgba(139, 92, 246, 0.4));
   word-break: normal;
   overflow-wrap: normal;
 }

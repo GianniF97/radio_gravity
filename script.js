@@ -12,8 +12,10 @@
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // =========================================================================
-  // 1. Audio Streaming Core & Web Audio Frequency Analyzer
   // =========================================================================
+  // 1. Audio Streaming Core & Robust Live Stream Engine
+  // =========================================================================
+  const STREAM_URL = 'https://cdn.onlyhitsradio.net/tophits';
   const audio = document.getElementById('miRadio');
   const btnHeroPlay = document.getElementById('btnHeroPlay');
   const btnMasterPlay = document.getElementById('btnMasterPlay');
@@ -31,6 +33,7 @@
   const floatingDock = document.getElementById('floatingDock');
 
   let isPlaying = false;
+  let isToggling = false;
   let previousVolume = 0.85;
 
   // Web Audio Context & Synthesizer
@@ -142,22 +145,55 @@
     }
   }
 
-  async function togglePlayback() {
+  async function playStream() {
     if (!audio) return;
+    isPlaying = true;
+    setLoadingState('Conectando al streaming...');
+    updatePlayUI(true);
 
-    if (audio.paused) {
-      setLoadingState('Conectando al streaming...');
+    // Reconnect cleanly to live streaming broadcast edge
+    audio.src = STREAM_URL;
 
+    try {
+      await audio.play();
+      updatePlayUI(true);
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        // Harmless rapid toggle abort; state already updated
+        return;
+      }
+      console.warn('Playback error, retrying:', err);
       try {
+        audio.src = STREAM_URL;
         await audio.play();
         updatePlayUI(true);
-      } catch (err) {
-        console.warn('Playback error or policy restriction:', err);
+      } catch (retryErr) {
+        if (retryErr.name === 'AbortError') return;
+        console.error('Audio streaming connection error:', retryErr);
         setErrorState('Toca para iniciar reproducción');
+        updatePlayUI(false);
       }
-    } else {
+    }
+  }
+
+  function pauseStream() {
+    if (!audio) return;
+    isPlaying = false;
+
+    try {
       audio.pause();
+    } catch (e) {
+      console.warn('Error during stream pause:', e);
+    } finally {
       updatePlayUI(false);
+    }
+  }
+
+  function togglePlayback() {
+    if (isPlaying) {
+      pauseStream();
+    } else {
+      playStream();
     }
   }
 
@@ -171,13 +207,13 @@
 
   if (audio) {
     audio.addEventListener('loadstart', () => {
-      if (!audio.paused) setLoadingState('Conectando al streaming...');
+      if (isPlaying) setLoadingState('Conectando al streaming...');
     });
     audio.addEventListener('waiting', () => {
-      setLoadingState('Sincronizando buffer...');
+      if (isPlaying) setLoadingState('Sincronizando buffer...');
     });
     audio.addEventListener('stalled', () => {
-      if (!audio.paused) setLoadingState('Esperando datos de streaming...');
+      if (isPlaying) setLoadingState('Reconectando señal...');
     });
     audio.addEventListener('playing', () => {
       updatePlayUI(true);
@@ -186,8 +222,16 @@
       updatePlayUI(false);
     });
     audio.addEventListener('error', () => {
-      console.error('Audio stream error:', audio.error);
-      setErrorState('Fallo al conectar con el servidor de streaming');
+      if (!isPlaying) return;
+      console.warn('Audio stream connection issue:', audio.error);
+      setErrorState('Reconectando señal en vivo...');
+      // Safe one-time recovery attempt
+      setTimeout(() => {
+        if (isPlaying) {
+          audio.src = STREAM_URL;
+          audio.play().catch(() => {});
+        }
+      }, 2000);
     });
   }
 
