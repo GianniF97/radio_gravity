@@ -845,7 +845,7 @@
     const now = new Date();
     const localHours = String(now.getHours()).padStart(2, '0');
     const localMinutes = String(now.getMinutes()).padStart(2, '0');
-    timecodeEl.textContent = `Buenos Aires ${localHours}:${localMinutes}`;
+    timecodeEl.textContent = `Oberá Misiones ${localHours}:${localMinutes}`;
   }
   setInterval(updateTimecode, 1000);
   updateTimecode();
